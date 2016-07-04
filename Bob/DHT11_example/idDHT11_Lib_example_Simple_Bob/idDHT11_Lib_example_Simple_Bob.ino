@@ -72,19 +72,19 @@ void loop()
   Serial.print("Humidity (%): ");
   Serial.println(DHT11.getHumidity(), 2);
 
-  Serial.print("Temperature (oC): ");
+  Serial.print("Temperature (Celsius): ");
   Serial.println(DHT11.getCelsius(), 2);
 
-  Serial.print("Temperature (oF): ");
+  Serial.print("Temperature (Fahrenheit): ");
   Serial.println(DHT11.getFahrenheit(), 2);
 
-  Serial.print("Temperature (K): ");
+  Serial.print("Temperature (Kelvin): ");
   Serial.println(DHT11.getKelvin(), 2);
 
-  Serial.print("Dew Point (oC): ");
+  Serial.print("Dew Point (Celsius): ");
   Serial.println(DHT11.getDewPoint());
 
-  Serial.print("Dew Point Slow (oC): ");
+  Serial.print("Dew Point Slow (Celsius): ");
   Serial.println(DHT11.getDewPointSlow());
 
   delay(2000);
