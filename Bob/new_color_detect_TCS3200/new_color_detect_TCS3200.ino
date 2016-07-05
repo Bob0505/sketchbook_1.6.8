@@ -1,35 +1,50 @@
+#include <Timer.h>
+Timer timer;
 
-int S0 = 3;//pinB
-int S1 = 4;//pinA
-int S2 = 5;//pinE
-int S3 = 6;//pinF
-int taosOutPin = 2;//pinC
-int LED = 13;//pinD
-int r = 8, g = 9, b = 10;
+#define S0	3	/* pinB */
+#define S1	4	/* pinA */
+#define S2	5	/* pinE */
+#define S3	6	/* pinF */
+#define TAOS_OUT_PIN 2	/* pinC */
+#define LED 	13	/* pinD */
+#define LED_R	8
+#define LED_G	9
+#define LED_B	10
+
+void doAfter()
+{
+  // 500m sec tick started id
+  int tickEvent = timer.every(500, detectColor);
+}
+
 void setup() {
   TCS3200setup();
   Serial.begin(115200);
-  pinMode(r,OUTPUT);
-  pinMode(g,OUTPUT);
-  pinMode(b,OUTPUT);
-  delay(100);
+  pinMode(LED_R,OUTPUT);
+  pinMode(LED_G,OUTPUT);
+  pinMode(LED_B,OUTPUT);
+
+  //delay(100);
+  int afterEvent = timer.after(100, doAfter);
 }
 
 // primary loop takes color readings from all four channels and displays the raw values once per second.  What you might wish to do with those values is up to you...
 void loop() {
 
-  detectColor(taosOutPin);
+  //detectColor(TAOS_OUT_PIN);
   //Serial.print("nnn");
-  delay(500);
+  //delay(500);
+  timer.update();
 
 }
 
-int detectColor(int taosOutPin) {
+void detectColor(void) {
 
-  float white = colorRead(taosOutPin, 0, 1);
-  float red = colorRead(taosOutPin, 1, 1);
-  float blue = colorRead(taosOutPin, 2, 1);
-  float green = colorRead(taosOutPin, 3, 1);
+  Serial.println("[detectColor] Start");
+  float white = colorRead( 0, 1);
+  float red = colorRead( 1, 1);
+  float blue = colorRead( 2, 1);
+  float green = colorRead( 3, 1);
   red = map(red, 0, 180, 0, 100);
   blue = map(blue, 0, 100, 0, 100);
   green = map(green, 0, 170, 0, 100);
@@ -47,22 +62,22 @@ int detectColor(int taosOutPin) {
  
   if (white < 30) {
     if (red < blue && red < green) {
-      digitalWrite(r,HIGH);
+      digitalWrite(LED_R, LOW);
       Serial.println("RED");
     }else{
-      digitalWrite(r,LOW);
+      digitalWrite(LED_R, HIGH);
     }
     if (blue < red && blue < green) {
-      digitalWrite(b,HIGH);
+      digitalWrite(LED_B, LOW);
       Serial.println("BLUE");
     }else{
-      digitalWrite(b,LOW);
+      digitalWrite(LED_B, HIGH);
     }
     if (green < red && green < blue) {
-      digitalWrite(g,HIGH);
+      digitalWrite(LED_G, LOW);
       Serial.println("GREEN");
     }else{
-      digitalWrite(g,LOW);
+      digitalWrite(LED_G, HIGH);
     }
   }
   Serial.println("=====================");
@@ -73,10 +88,10 @@ This section will return the pulseIn reading of the selected color.
 It will turn on the sensor at the start taosMode(1), and it will power off the sensor at the end taosMode(0)
 color codes: 0=white, 1=red, 2=blue, 3=green
 if LEDstate is 0, LED will be off. 1 and the LED will be on.
-taosOutPin is the ouput pin of the TCS3200.
+TAOS_OUT_PIN is the ouput pin of the TCS3200.
 */
 
-float colorRead(int taosOutPin, int color, boolean LEDstate) {
+float colorRead(int color, boolean LEDstate) {
 
   //turn on sensor and use highest frequency/sensitivity setting
   taosMode(1);
@@ -124,7 +139,7 @@ float colorRead(int taosOutPin, int color, boolean LEDstate) {
   delay(sensorDelay);
 
   // now take a measurement from the sensor, timing a low pulse on the sensor's "out" pin
-  readPulse = pulseIn(taosOutPin, LOW, 80000);
+  readPulse = pulseIn(TAOS_OUT_PIN, LOW, 80000);
 
   //if the pulseIn times out, it returns 0 and that throws off numbers. just cap it at 80k if it happens
   if (readPulse < .1) {
@@ -184,7 +199,7 @@ void TCS3200setup() {
   pinMode(S3, OUTPUT); //s3 pinF
 
   //color response pin (only actual input from taos)
-  pinMode(taosOutPin, INPUT); //taosOutPin pinC
+  pinMode(TAOS_OUT_PIN, INPUT); //TAOS_OUT_PIN pinC
 
   //communication freq (sensitivity) selection
   pinMode(S0, OUTPUT); //S0 pinB
