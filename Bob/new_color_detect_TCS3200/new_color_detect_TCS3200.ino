@@ -1,15 +1,23 @@
+// The three-primary colours of light : RGB
+
 #include <Timer.h>
 Timer timer;
 
-#define S0	3	/* pinB */
-#define S1	4	/* pinA */
-#define S2	5	/* pinE */
-#define S3	6	/* pinF */
-#define TAOS_OUT_PIN 2	/* pinC */
-#define LED 	13	/* pinD */
-#define LED_R	8
-#define LED_G	9
-#define LED_B	10
+const byte S0 = 3;	/* pinB */
+const byte S1 = 4;	/* pinA */
+const byte S2 = 5;	/* pinE */
+const byte S3 = 6;	/* pinF */
+const byte TAOS_OUT_PIN = 2;	/* pinC */
+const byte LED = 13;	/* pinD */
+const byte LED_R = 8;
+const byte LED_G = 9;
+const byte LED_B = 10;
+
+//Output frequency scaling selection inputs.
+//Power off, Two PERCENT, Twenty PERCENT, Hundred PERCENT
+enum OFSSI {E_PowerOff, E_TwoPer, E_TwePer, E_HunPer};
+enum COLOR { E_white, E_red, E_blue, E_green}; 
+
 
 void doAfter()
 {
@@ -40,11 +48,11 @@ void loop() {
 
 void detectColor(void) {
 
-  Serial.println("[detectColor] Start");
-  float white = colorRead( 0, 1);
-  float red = colorRead( 1, 1);
-  float blue = colorRead( 2, 1);
-  float green = colorRead( 3, 1);
+  float white = colorRead( E_white, 1);
+  float red = colorRead( E_red, 1);
+  float blue = colorRead( E_blue, 1);
+  float green = colorRead( E_green, 1);
+
   red = map(red, 0, 180, 0, 100);
   blue = map(blue, 0, 100, 0, 100);
   green = map(green, 0, 170, 0, 100);
@@ -85,45 +93,46 @@ void detectColor(void) {
 
 /*
 This section will return the pulseIn reading of the selected color.
-It will turn on the sensor at the start taosMode(1), and it will power off the sensor at the end taosMode(0)
+It will turn on the sensor at the start taosMode(E_HunPer), and it will power off the sensor at the end taosMode(E_PowerOff)
 color codes: 0=white, 1=red, 2=blue, 3=green
 if LEDstate is 0, LED will be off. 1 and the LED will be on.
 TAOS_OUT_PIN is the ouput pin of the TCS3200.
 */
-
-float colorRead(int color, boolean LEDstate) {
+float colorRead(enum COLOR color, boolean LEDstate) {
 
   //turn on sensor and use highest frequency/sensitivity setting
-  taosMode(1);
+  taosMode(E_HunPer);
 
   //setting for a delay to let the sensor sit for a moment before taking a reading.
-  int sensorDelay = 100;
+  int sensorDelay = 1;	//100
 
   //set the S2 and S3 pins to select the color to be sensed
-  if (color == 0) { //white
+  if (E_white == color) { //white
     digitalWrite(S3, LOW); //S3
     digitalWrite(S2, HIGH); //S2
     // Serial.print(" w");
   }
 
-  else if (color == 1) { //red
+  else if (E_red == color) { //red
     digitalWrite(S3, LOW); //S3
     digitalWrite(S2, LOW); //S2
     // Serial.print(" r");
   }
 
-  else if (color == 2) { //blue
+  else if (E_blue == color) { //blue
     digitalWrite(S3, HIGH); //S3
     digitalWrite(S2, LOW); //S2
     // Serial.print(" b");
   }
 
-  else if (color == 3) { //green
+  else if (E_green == color) { //green
     digitalWrite(S3, HIGH); //S3
     digitalWrite(S2, HIGH); //S2
     // Serial.print(" g");
-  }
+  }  
+  else{
 
+  }
   // create a var where the pulse reading from sensor will go
   float readPulse;
 
@@ -147,7 +156,7 @@ float colorRead(int color, boolean LEDstate) {
   }
 
   //turn off color sensor and LEDs to save power
-  taosMode(0);
+  taosMode(E_PowerOff);
 
   // return the pulse value back to whatever called for it...
   return readPulse;
@@ -155,34 +164,36 @@ float colorRead(int color, boolean LEDstate) {
 }
 
 // Operation modes area, controlled by hi/lo settings on S0 and S1 pins.
-//setting mode to zero will put taos into low power mode. taosMode(0);
+//setting mode to zero will put taos into low power mode. taosMode(E_PowerOff);
 
-void taosMode(int mode) {
+void taosMode(enum OFSSI mode) {
 
-  if (mode == 0) {
+  if (E_PowerOff == mode) {
     //power OFF mode-  LED off and both channels "low"
     digitalWrite(LED, LOW);
     digitalWrite(S0, LOW); //S0
     digitalWrite(S1, LOW); //S1
     //  Serial.println("mOFFm");
 
-  } else if (mode == 1) {
+  } else if (E_HunPer == mode) {
     //this will put in 1:1, highest sensitivity
     digitalWrite(S0, HIGH); //S0
     digitalWrite(S1, HIGH); //S1
     // Serial.println("m1:1m");
 
-  } else if (mode == 2) {
+  } else if (E_TwePer == mode) {
     //this will put in 1:5
     digitalWrite(S0, HIGH); //S0
     digitalWrite(S1, LOW); //S1
     //Serial.println("m1:5m");
 
-  } else if (mode == 3) {
+  } else if (E_TwoPer == mode) {
     //this will put in 1:50
     digitalWrite(S0, LOW); //S0
     digitalWrite(S1, HIGH); //S1
     //Serial.println("m1:50m");
+  } else {
+      
   }
 
   return;
