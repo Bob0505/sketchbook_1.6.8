@@ -1,7 +1,8 @@
 // The three-primary colours of light : RGB
 
 #include <Timer.h>
-Timer timer;
+#include <RGBTools.h>
+#define MaxInput 50
 
 const byte S0 = 3;	/* pinB */
 const byte S1 = 4;	/* pinA */
@@ -9,41 +10,58 @@ const byte S2 = 5;	/* pinE */
 const byte S3 = 6;	/* pinF */
 const byte TAOS_OUT_PIN = 2;	/* pinC */
 const byte LED = 13;	/* pinD */
-const byte LED_R = 8;
+const byte LED_R = 11;
 const byte LED_G = 9;
 const byte LED_B = 10;
 
 //Output frequency scaling selection inputs.
 //Power off, Two PERCENT, Twenty PERCENT, Hundred PERCENT
-enum OFSSI {E_PowerOff, E_TwoPer, E_TwePer, E_HunPer};
+enum OFSSI { E_PowerOff, E_TwoPer, E_TwePer, E_HunPer};
 enum COLOR { E_white, E_red, E_blue, E_green}; 
 
+Timer timer;
+RGBTools RGB( LED_R, LED_G, LED_B, COMMON_ANODE);
 
 void doAfter()
 {
-  // 500m sec tick started id
-  int tickEvent = timer.every(500, detectColor);
+  // 150m sec tick started id
+  int tickEvent = timer.every(150, detectColor);
 }
 
 void setup() {
   TCS3200setup();
   Serial.begin(115200);
-  pinMode(LED_R,OUTPUT);
-  pinMode(LED_G,OUTPUT);
-  pinMode(LED_B,OUTPUT);
+  Serial.println(" === Set RED ===");
+  RGB.setColor(Color::RED);
+  delay(200);
+  Serial.println(" === Set GREEN ===");
+  RGB.setColor(Color::GREEN);
+  delay(200);
+  Serial.println(" === Set BLUE ===");
+  RGB.setColor(Color::BLUE);
+  delay(200);
+  RGB.setColor(Color::OFF);
 
-  //delay(100);
+  //delay 100ms for TCS3200Setup
   int afterEvent = timer.after(100, doAfter);
 }
 
 // primary loop takes color readings from all four channels and displays the raw values once per second.  What you might wish to do with those values is up to you...
 void loop() {
 
-  //detectColor(TAOS_OUT_PIN);
-  //Serial.print("nnn");
-  //delay(500);
   timer.update();
 
+}
+
+void setDataRange(float *Data, float toLow, float toHigh) {
+
+  if(toLow > toHigh)
+    return;
+		
+  if(toLow > *Data)
+    *Data = toLow;
+  else if (toHigh < *Data)
+    *Data = toHigh;
 }
 
 void detectColor(void) {
@@ -53,41 +71,48 @@ void detectColor(void) {
   float blue = colorRead( E_blue, 1);
   float green = colorRead( E_green, 1);
 
+  Serial.ardprt("white: %f,\tred  : %f,\tgreen: %f,\tblue : %f", white, red, green, blue);
+//only show R, G, B
+/*
   red = map(red, 0, 180, 0, 100);
   blue = map(blue, 0, 100, 0, 100);
   green = map(green, 0, 170, 0, 100);
-  Serial.print("white ");
-  Serial.println(white);
-
-  Serial.print("red ");
-  Serial.println(red);
-
-  Serial.print("blue ");
-  Serial.println(blue);
-
-  Serial.print("green ");
-  Serial.println(green);
- 
   if (white < 30) {
     if (red < blue && red < green) {
-      digitalWrite(LED_R, LOW);
       Serial.println("RED");
+      analogWrite(LED_R, 0);
     }else{
-      digitalWrite(LED_R, HIGH);
+      analogWrite(LED_R, 255);
     }
     if (blue < red && blue < green) {
-      digitalWrite(LED_B, LOW);
       Serial.println("BLUE");
+      analogWrite(LED_B, 0);
     }else{
-      digitalWrite(LED_B, HIGH);
+      analogWrite(LED_B, 255);
     }
     if (green < red && green < blue) {
-      digitalWrite(LED_G, LOW);
       Serial.println("GREEN");
+      analogWrite(LED_G, 0);
     }else{
-      digitalWrite(LED_G, HIGH);
+      analogWrite(LED_G, 255);
     }
   }
+*/
+//show the Color on RGB_LED
+  setDataRange(&white, 0 , MaxInput);
+  setDataRange(&red  , 0 , MaxInput);
+  setDataRange(&blue , 0 , MaxInput);
+  setDataRange(&green, 0 , MaxInput);
+
+  white = map(white, MaxInput, 0, 0, 255);
+  red   = map(red  , MaxInput, 0, 0, 255);
+  blue  = map(blue , MaxInput, 0, 0, 255);
+  green = map(green, MaxInput, 0, 0, 255);
+
+  Serial.ardprt("white: %f,\tred  : %f,\tgreen: %f,\tblue : %f", white, red, green, blue);
+  Serial.ardprt("===============");
+
+  RGB.setColor(red, green, blue);
   Serial.println("=====================");
 }
 
@@ -151,9 +176,7 @@ float colorRead(enum COLOR color, boolean LEDstate) {
   readPulse = pulseIn(TAOS_OUT_PIN, LOW, 80000);
 
   //if the pulseIn times out, it returns 0 and that throws off numbers. just cap it at 80k if it happens
-  if (readPulse < .1) {
-    readPulse = 80000;
-  }
+  setDataRange(&readPulse, 0.1 , 80000);
 
   //turn off color sensor and LEDs to save power
   taosMode(E_PowerOff);
