@@ -1,4 +1,5 @@
-Timer   : https://github.com/JChristensen/Timer
-RGB	    : https://github.com/joushx/Arduino-RGB-Tools
-TCS3200 : https://github.com/keepworking/color_detect_TCS3200
-SSD1306	: https://github.com/adafruit/Adafruit_SSD1306
+Timer   	: https://github.com/JChristensen/Timer
+RGB	    	: https://github.com/joushx/Arduino-RGB-Tools
+TCS3200 	: https://github.com/keepworking/color_detect_TCS3200
+SSD1306		: https://github.com/adafruit/Adafruit_SSD1306
+GFX-Library	: https://github.com/adafruit/Adafruit-GFX-Library
