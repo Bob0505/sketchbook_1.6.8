@@ -35,7 +35,7 @@ Adafruit_MAX30100::Adafruit_MAX30100(void) {
 
 bool Adafruit_MAX30100::begin(void) {
   Wire.begin();
-  
+  Serial.println("<bob+>Adafruit_MAX30100 begin"); //test+
   if (readRegister8(MAX30100_PARTID_REG) != MAX30100_PARTID_VAL)
     return false;
 
@@ -192,12 +192,18 @@ void Adafruit_MAX30100::writeRegister8(uint8_t reg, uint8_t value) {
 
 uint8_t Adafruit_MAX30100::readRegister8(uint8_t reg) {
   uint8_t value;
+  Serial.ardprt("readRegister8 _i2caddr: 0x%x", _i2caddr); //test+
   Wire.beginTransmission(_i2caddr);
+  Serial.ardprt("===========CK1"); //test+
   Wire.write((uint8_t)reg);
+  Serial.ardprt("===========CK2"); //test+
   Wire.endTransmission(false);
+  Serial.ardprt("===========CK3"); //test+
 
   Wire.requestFrom(_i2caddr, 1);
+  Serial.ardprt("===========CK4"); //test+
   value = Wire.read();
+  Serial.ardprt("===========CK5"); //test+
 
   //Serial.print("Read $"); Serial.print(reg, HEX); Serial.print(": 0x"); Serial.println(value, HEX);
   return value;
