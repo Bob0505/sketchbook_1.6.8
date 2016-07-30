@@ -5,5 +5,7 @@ SSD1306		 : https://github.com/adafruit/Adafruit_SSD1306
 GFX-Library	 : https://github.com/adafruit/Adafruit-GFX-Library
 Adafruit_NeoPixel: https://github.com/adafruit/Adafruit_NeoPixel
 RTC		 : https://github.com/Makuna/Rtc
+ssd1306xled	 : https://bitbucket.org/tinusaur/ssd1306xled
+TinyWire     : https://github.com/rambo/TinyWire
 
 http://stackoverflow.com/questions/29904009/code-to-run-attiny85-with-ws2812-integrated-with-rgb-led
