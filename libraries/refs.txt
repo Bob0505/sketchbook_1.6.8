@@ -7,5 +7,10 @@ Adafruit_NeoPixel: https://github.com/adafruit/Adafruit_NeoPixel
 RTC		 : https://github.com/Makuna/Rtc
 ssd1306xled	 : https://bitbucket.org/tinusaur/ssd1306xled
 TinyWire     : https://github.com/rambo/TinyWire
+TM1637		 : https://github.com/avishorp/TM1637
+MAX7219		 : https://github.com/csdexter/MAX7219
+LedControl	 : https://github.com/wayoda/LedControl
+MFRC522		 : https://github.com/miguelbalboa/rfid
+STM32		 : https://github.com/rogerclarkmelbourne/Arduino_STM32
 
 http://stackoverflow.com/questions/29904009/code-to-run-attiny85-with-ws2812-integrated-with-rgb-led
