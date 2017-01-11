@@ -8,11 +8,16 @@
 #include <avr/pgmspace.h>
 #endif
 
-#include <RtcDS1307.h>
+//Use Libraries "Wire" Built-in by Arduino V1.0.0
 #include <Wire.h>
-#include <Adafruit_HTU21DF.h>
+//Use Libraries "SPI" Built-in by Arduino V1.0.0
 #include <SPI.h>
+//Use Libraries "SD" Built-in by Arduino, SparkFun V1.1.1 
 #include <SD.h>
+//Use Libraries "Rtc by Makuna" v1.0.1
+#include <RtcDS1307.h>
+//Use Libraries "Adafruit Htu21d Library" v1.0.0
+#include <Adafruit_HTU21DF.h>
 
 // Connect Vin to 3-5VDC
 // Connect GND to ground
@@ -202,7 +207,11 @@ void loop()
 
 //=======================================	HTU21DF	Start
   float Temperature = htu.readTemperature(), Humidity = htu.readHumidity();
-  Serial.ardprt("Tmp: %f, Hum:%f", Temperature, Humidity);    //TEST
+  Serial.print("Tmp:");
+  Serial.print(Temperature,2);
+  Serial.print(" Hum:");
+  Serial.print(Humidity,2);
+  Serial.print("\n\r");
 //=======================================	HTU21DF	End
 
 //=======================================	SD	Start
